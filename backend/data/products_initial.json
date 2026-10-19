@@ -1,0 +1,44 @@
+[
+  {
+    "name": "Cattle Booster Plus",
+    "category": "Supplements",
+    "wholesale_price": 450.00,
+    "stock_level": 100,
+    "description": "High potency vitamin supplement for increased milk production in cattle."
+  },
+  {
+    "name": "CanineVax 5-in-1",
+    "category": "Vaccines",
+    "wholesale_price": 1200.00,
+    "stock_level": 50,
+    "description": "Core vaccine for dogs against Distemper, Parvovirus, and others."
+  },
+  {
+    "name": "Feline Dewormer Tabs",
+    "category": "Medicines",
+    "wholesale_price": 250.00,
+    "stock_level": 200,
+    "description": "Broad spectrum dewormer for cats."
+  },
+  {
+    "name": "Poultry Growth Mix",
+    "category": "Feed",
+    "wholesale_price": 850.00,
+    "stock_level": 150,
+    "description": "Essential amino acids for rapid poultry growth."
+  },
+  {
+    "name": "Equine Joint Flex",
+    "category": "Supplements",
+    "wholesale_price": 1500.00,
+    "stock_level": 30,
+    "description": "Joint support for racehorses and working horses."
+  },
+  {
+    "name": "Antibiotic Spray",
+    "category": "Topical",
+    "wholesale_price": 150.00,
+    "stock_level": 300,
+    "description": "Topical spray for wound healing in all animals."
+  }
+]

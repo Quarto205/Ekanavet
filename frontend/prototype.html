@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EkanaVet - Wholesale Platform</title>
+    
+    <!-- React & ReactDOM (Stable UMD) -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    
+    <!-- Babel for JSX -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F8FAFC;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #D1D5DB; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #9CA3AF; 
+        }
+
+        /* Glassmorphism Utilities */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(229, 231, 235, 0.5);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+        }
+        
+        .glass-card {
+            background: white;
+            border: 1px solid #E5E7EB;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+            transition: all 0.2s ease;
+        }
+
+        .glass-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(16, 185, 129, 0.1), 0 4px 6px -2px rgba(16, 185, 129, 0.05);
+            border-color: #10B981;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+        
+        // --- Icons (Inlined for Stability) ---
+        
+        const IconBase = ({ children, size = 24, className = "" }) => (
+            <svg 
+                xmlns="http://www.w3.org/2000/svg" 
+                width={size} 
+                height={size} 
+                viewBox="0 0 24 24" 
+                fill="none" 
+                stroke="currentColor" 
+                strokeWidth="2" 
+                strokeLinecap="round" 
+                strokeLinejoin="round" 
+                className={className}
+            >
+                {children}
+            </svg>
+        );
+
+        const LayoutDashboard = (props) => (
+            <IconBase {...props}><rect width="7" height="9" x="3" y="3" rx="1" /><rect width="7" height="5" x="14" y="3" rx="1" /><rect width="7" height="9" x="14" y="12" rx="1" /><rect width="7" height="5" x="3" y="16" rx="1" /></IconBase>
+        );
+        const ShoppingBag = (props) => (
+            <IconBase {...props}><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z" /><path d="M3 6h18" /><path d="M16 10a4 4 0 0 1-8 0" /></IconBase>
+        );
+        const Users = (props) => (
+            <IconBase {...props}><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M22 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></IconBase>
+        );
+        const FileText = (props) => (
+            <IconBase {...props}><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" /><polyline points="14 2 14 8 20 8" /><line x1="16" x2="8" y1="13" y2="13" /><line x1="16" x2="8" y1="17" y2="17" /><line x1="10" x2="8" y1="9" y2="9" /></IconBase>
+        );
+        const Settings = (props) => (
+            <IconBase {...props}><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.1a2 2 0 0 1-1-1.72v-.51a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" /><circle cx="12" cy="12" r="3" /></IconBase>
+        );
+        const Search = (props) => (
+            <IconBase {...props}><circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" /></IconBase>
+        );
+        const Bell = (props) => (
+            <IconBase {...props}><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" /><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" /></IconBase>
+        );
+        const X = (props) => (
+            <IconBase {...props}><path d="M18 6 6 18" /><path d="m6 6 12 12" /></IconBase>
+        );
+        const ChevronRight = (props) => (
+            <IconBase {...props}><path d="m9 18 6-6-6-6" /></IconBase>
+        );
+        const Truck = (props) => (
+            <IconBase {...props}><path d="M10 17h4V5H2v12h3" /><path d="M20 17h2v-3.34a4 4 0 0 0-1.17-2.83L19 9h-5" /><path d="M14 17h1" /><circle cx="7.5" cy="17.5" r="2.5" /><circle cx="17.5" cy="17.5" r="2.5" /></IconBase>
+        );
+        const Pill = (props) => (
+            <IconBase {...props}><path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z" /><path d="m8.5 8.5 7 7" /></IconBase>
+        );
+        const Activity = (props) => (
+            <IconBase {...props}><path d="M22 12h-4l-3 9L9 3l-3 9H2" /></IconBase>
+        );
+        const Wallet = (props) => (
+            <IconBase {...props}><path d="M21 12V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-5Zm-6 0h6" /></IconBase>
+        );
+        const TrendingUp = (props) => (
+            <IconBase {...props}><polyline points="22 7 13.5 15.5 8.5 10.5 2 17" /><polyline points="16 7 22 7 22 13" /></IconBase>
+        );
+        const MapPin = (props) => (
+            <IconBase {...props}><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" /><circle cx="12" cy="10" r="3" /></IconBase>
+        );
+        const Bot = (props) => (
+            <IconBase {...props}><path d="M12 8V4H8" /><rect width="16" height="12" x="4" y="8" rx="2" /><path d="M2 14h2" /><path d="M20 14h2" /><path d="M15 13v2" /><path d="M9 13v2" /></IconBase>
+        );
+
+        // --- Mock Data (UPDATED) ---
+        const PRODUCTS = [
+            { id: 1, name: "Aidhaem", category: "Blood Builder", price: 350, stock: 850, unit: "500ml Bottle", growth: "+12%" },
+            { id: 2, name: "PCD Powder", category: "Critical Care", price: 420, stock: 200, unit: "Box (4x50g Sachets)", growth: "+8%" },
+            { id: 3, name: "Rumepower", category: "Gut Health", price: 180, stock: 1500, unit: "Box (6x12.5g Sachets)", growth: "+25%" },
+            { id: 4, name: "Ekana Animal Soap", category: "Hygiene", price: 85, stock: 5000, unit: "75g Bar", growth: "+15%" },
+            { id: 5, name: "Ekana Poshak", category: "Milk Booster", price: 650, stock: 600, unit: "1L Bottle", growth: "+5%" }
+        ];
+
+        const TASKS = [
+            { id: 1, type: "Delivery", location: "Green Valley Farm, Sector 4", status: "Pending", time: "10:30 AM" },
+            { id: 2, type: "Meeting", location: "Dr. Sharma Clinic", status: "Done", time: "09:00 AM" },
+            { id: 3, type: "Delivery", location: "City Pet Shop", status: "Pending", time: "02:00 PM" }
+        ];
+        
+        // --- Helper for Category Colors ---
+        const getCategoryColor = (category) => {
+            switch(category) {
+                case 'Blood Builder': return 'bg-red-100 text-red-700';
+                case 'Critical Care': return 'bg-orange-100 text-orange-700';
+                case 'Gut Health': return 'bg-yellow-100 text-yellow-700';
+                case 'Hygiene': return 'bg-blue-100 text-blue-700';
+                case 'Milk Booster': return 'bg-purple-100 text-purple-700';
+                default: return 'bg-gray-100 text-gray-800';
+            }
+        };
+
+        // --- Components ---
+
+        const Sidebar = ({ activeTab, setActiveTab, userType, setUserType }) => {
+            const customerLinks = [
+                { id: 'market', label: 'Wholesale Market', icon: ShoppingBag },
+                { id: 'dashboard', label: 'My Dashboard', icon: LayoutDashboard },
+                { id: 'ai-vet', label: 'AI Vet Assistant', icon: Bot },
+                { id: 'samples', label: 'Sample Requests', icon: Pill },
+            ];
+
+            const employeeLinks = [
+                { id: 'tasks', label: 'My Tasks', icon: Truck },
+                { id: 'commissions', label: 'Commissions', icon: Wallet },
+                { id: 'receipts', label: 'File Receipts', icon: FileText },
+            ];
+
+            const links = userType === 'customer' ? customerLinks : employeeLinks;
+
+            return (
+                <div className="w-64 bg-white border-r border-gray-200 h-screen fixed left-0 top-0 flex flex-col z-20 hidden md:flex">
+                    <div className="p-6">
+                         <div className="flex items-center gap-3 mb-1">
+                            <div className="w-8 h-8 bg-emerald-600 rounded-lg flex items-center justify-center">
+                                <span className="text-white font-bold text-lg">E</span>
+                            </div>
+                            <span className="font-bold text-xl tracking-tight text-gray-800">EkanaVet</span>
+                        </div>
+                        {/* Motto Subtitle */}
+                        <p className="text-[10px] text-emerald-600 font-semibold tracking-wide uppercase ml-1">Elevate Health • Excel Production</p>
+                    </div>
+
+                    <div className="flex-1 px-4 space-y-2 mt-4">
+                        <div className="text-xs font-semibold text-gray-400 uppercase tracking-wider px-4 mb-2">
+                            {userType === 'customer' ? 'Clinic Portal' : 'Employee Portal'}
+                        </div>
+                        {links.map((link) => (
+                            <button
+                                key={link.id}
+                                onClick={() => setActiveTab(link.id)}
+                                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${
+                                    activeTab === link.id 
+                                    ? 'bg-emerald-50 text-emerald-700' 
+                                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                                }`}
+                            >
+                                <link.icon size={20} />
+                                {link.label}
+                            </button>
+                        ))}
+                    </div>
+
+                    {/* Role Switcher for Demo */}
+                    <div className="p-4 border-t border-gray-100">
+                        <div className="bg-gray-50 p-3 rounded-xl border border-gray-200">
+                            <p className="text-xs text-gray-500 font-medium mb-2">View As (Demo Toggle)</p>
+                            <div className="flex bg-gray-200 rounded-lg p-1">
+                                <button 
+                                    onClick={() => setUserType('customer')}
+                                    className={`flex-1 text-xs py-1.5 rounded-md font-medium transition-all ${userType === 'customer' ? 'bg-white shadow-sm text-gray-900' : 'text-gray-500'}`}
+                                >
+                                    Client
+                                </button>
+                                <button 
+                                    onClick={() => setUserType('employee')}
+                                    className={`flex-1 text-xs py-1.5 rounded-md font-medium transition-all ${userType === 'employee' ? 'bg-white shadow-sm text-gray-900' : 'text-gray-500'}`}
+                                >
+                                    Staff
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const Topbar = () => {
+            return (
+                <div className="h-16 bg-white/80 backdrop-blur-md border-b border-gray-200 fixed top-0 right-0 left-0 md:left-64 z-10 flex items-center justify-between px-6">
+                    <div className="flex items-center gap-4 text-gray-500">
+                        <span className="text-sm">Welcome back, <strong>Dr. Anjali</strong></span>
+                    </div>
+                    
+                    <div className="flex items-center gap-4">
+                         {/* Search Bar */}
+                        <div className="hidden md:flex items-center bg-gray-100 rounded-full px-4 py-2 border border-transparent focus-within:border-emerald-500 focus-within:bg-white transition-all">
+                            <Search size={16} className="text-gray-400" />
+                            <input 
+                                type="text" 
+                                placeholder="Search medicines..." 
+                                className="bg-transparent border-none outline-none text-sm ml-2 w-48 text-gray-700 placeholder-gray-400"
+                            />
+                        </div>
+
+                        <button className="p-2 text-gray-400 hover:text-emerald-600 transition-colors relative">
+                            <Bell size={20} />
+                            <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border border-white"></span>
+                        </button>
+                        
+                        <div className="h-8 w-8 rounded-full bg-emerald-100 border border-emerald-200 flex items-center justify-center text-emerald-700 font-bold text-xs">
+                            DA
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const StatCard = ({ title, value, subtext, icon: Icon, trend }) => (
+            <div className="glass-card p-6 rounded-2xl relative overflow-hidden">
+                <div className="flex justify-between items-start mb-4">
+                    <div>
+                        <p className="text-sm font-medium text-gray-500">{title}</p>
+                        <h3 className="text-2xl font-bold text-gray-900 mt-1">{value}</h3>
+                    </div>
+                    <div className="p-2 bg-emerald-50 rounded-lg text-emerald-600">
+                        <Icon size={20} />
+                    </div>
+                </div>
+                <div className="flex items-center gap-2">
+                    {trend && (
+                        <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${trend.startsWith('+') ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                            {trend}
+                        </span>
+                    )}
+                    <span className="text-xs text-gray-400">{subtext}</span>
+                </div>
+            </div>
+        );
+
+        const MarketTable = ({ onProductClick }) => (
+            <div className="glass-panel rounded-2xl overflow-hidden">
+                <div className="p-6 border-b border-gray-100 flex justify-between items-center">
+                    <h2 className="text-lg font-bold text-gray-800">Wholesale Market</h2>
+                    <div className="flex gap-2">
+                         <button className="px-3 py-1.5 text-xs font-medium bg-gray-100 hover:bg-gray-200 rounded-lg text-gray-600 transition-colors">Filter</button>
+                         <button className="px-3 py-1.5 text-xs font-medium bg-emerald-50 hover:bg-emerald-100 rounded-lg text-emerald-700 transition-colors">Export CSV</button>
+                    </div>
+                </div>
+                <div className="overflow-x-auto">
+                    <table className="w-full text-left">
+                        <thead>
+                            <tr className="bg-gray-50/50 text-gray-500 text-xs uppercase tracking-wider">
+                                <th className="px-6 py-4 font-medium">Asset Name</th>
+                                <th className="px-6 py-4 font-medium">Category</th>
+                                <th className="px-6 py-4 font-medium text-right">Wholesale Price</th>
+                                <th className="px-6 py-4 font-medium text-right">Available Stock</th>
+                                <th className="px-6 py-4 font-medium text-center">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-100">
+                            {PRODUCTS.map((product) => (
+                                <tr key={product.id} className="hover:bg-gray-50/80 transition-colors group cursor-pointer" onClick={() => onProductClick(product)}>
+                                    <td className="px-6 py-4">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600 font-bold text-xs">
+                                                {product.name.charAt(0)}
+                                            </div>
+                                            <div>
+                                                <p className="font-medium text-gray-900 text-sm">{product.name}</p>
+                                                <p className="text-xs text-gray-400">{product.unit}</p>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td className="px-6 py-4">
+                                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getCategoryColor(product.category)}`}>
+                                            {product.category}
+                                        </span>
+                                    </td>
+                                    <td className="px-6 py-4 text-right">
+                                        <p className="font-medium text-gray-900">₹{product.price}</p>
+                                    </td>
+                                    <td className="px-6 py-4 text-right">
+                                        <p className="font-medium text-gray-900">{product.stock.toLocaleString()}</p>
+                                        <p className={`text-xs ${product.growth.startsWith('+') ? 'text-green-500' : 'text-red-500'}`}>{product.growth} vol</p>
+                                    </td>
+                                    <td className="px-6 py-4 text-center">
+                                        <button className="text-emerald-600 hover:text-emerald-700 font-medium text-sm border border-emerald-200 hover:bg-emerald-50 px-3 py-1 rounded-lg transition-all opacity-0 group-hover:opacity-100">
+                                            Details
+                                        </button>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        );
+
+        const EmployeeDashboard = () => (
+             <div className="space-y-6 animate-fade-in">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <StatCard title="Pending Tasks" value="5" subtext="2 High Priority" icon={Truck} trend="+1" />
+                    <StatCard title="Commission Earned" value="₹12,450" subtext="This Month" icon={Wallet} trend="+15%" />
+                    <StatCard title="Distance Covered" value="450 km" subtext="Efficiency: High" icon={MapPin} trend="+5%" />
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    {/* Task List */}
+                    <div className="glass-panel rounded-2xl p-6">
+                        <h3 className="text-lg font-bold text-gray-800 mb-4">Today's Route</h3>
+                        <div className="space-y-4">
+                            {TASKS.map(task => (
+                                <div key={task.id} className="flex items-center justify-between p-4 border border-gray-100 rounded-xl hover:border-emerald-200 transition-colors">
+                                    <div className="flex items-center gap-4">
+                                        <div className={`p-2 rounded-full ${task.status === 'Done' ? 'bg-green-100 text-green-600' : 'bg-yellow-100 text-yellow-600'}`}>
+                                            {task.status === 'Done' ? <Activity size={18} /> : <Truck size={18} />}
+                                        </div>
+                                        <div>
+                                            <p className="font-medium text-sm text-gray-900">{task.type} @ {task.location}</p>
+                                            <p className="text-xs text-gray-400">{task.time}</p>
+                                        </div>
+                                    </div>
+                                    <button className={`text-xs font-medium px-3 py-1.5 rounded-lg ${task.status === 'Done' ? 'bg-gray-100 text-gray-500 cursor-default' : 'bg-emerald-600 text-white hover:bg-emerald-700'}`}>
+                                        {task.status === 'Done' ? 'Completed' : 'Mark Done'}
+                                    </button>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Quick Receipt Upload */}
+                    <div className="glass-panel rounded-2xl p-6 bg-emerald-900 text-white relative overflow-hidden">
+                        <div className="relative z-10">
+                            <h3 className="text-lg font-bold mb-2">File Expense Receipt</h3>
+                            <p className="text-emerald-100 text-sm mb-6">Upload fuel or travel receipts for instant reimbursement processing.</p>
+                            
+                            <button className="w-full bg-white text-emerald-900 py-3 rounded-xl font-semibold hover:bg-emerald-50 transition-colors flex items-center justify-center gap-2">
+                                <FileText size={18} /> Upload New Receipt
+                            </button>
+                        </div>
+                        {/* Decorative background element */}
+                        <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500 rounded-full blur-3xl opacity-20 transform translate-x-10 -translate-y-10"></div>
+                    </div>
+                </div>
+            </div>
+        );
+
+        const Modal = ({ product, onClose }) => {
+            if (!product) return null;
+            return (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
+                    <div className="bg-white rounded-2xl w-full max-w-md shadow-2xl animate-scale-in overflow-hidden">
+                        <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50">
+                            <h3 className="text-lg font-bold text-gray-900">{product.name}</h3>
+                            <button onClick={onClose} className="p-1 hover:bg-gray-200 rounded-full transition-colors"><X size={20} /></button>
+                        </div>
+                        <div className="p-6 space-y-6">
+                            <div className="flex justify-between items-center p-4 bg-emerald-50 rounded-xl border border-emerald-100">
+                                <div>
+                                    <p className="text-xs text-emerald-600 uppercase font-bold tracking-wide">Wholesale Price</p>
+                                    <p className="text-2xl font-bold text-gray-900">₹{product.price}</p>
+                                </div>
+                                <div className="text-right">
+                                    <p className="text-xs text-gray-500 uppercase font-bold tracking-wide">Min Order</p>
+                                    <p className="text-sm font-medium text-gray-900">10 Units</p>
+                                </div>
+                            </div>
+
+                            <div className="space-y-3">
+                                <div className="flex justify-between text-sm">
+                                    <span className="text-gray-500">Unit Type</span>
+                                    <span className="font-medium text-gray-900">{product.unit}</span>
+                                </div>
+                                <div className="flex justify-between text-sm">
+                                    <span className="text-gray-500">Stock Status</span>
+                                    <span className="font-medium text-green-600">Available ({product.stock})</span>
+                                </div>
+                                <div className="flex justify-between text-sm">
+                                    <span className="text-gray-500">Category</span>
+                                    <span className="font-medium text-gray-900">{product.category}</span>
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-3 pt-2">
+                                <button className="py-3 px-4 rounded-xl border border-gray-300 text-gray-700 font-medium hover:bg-gray-50 transition-colors">
+                                    Request Sample
+                                </button>
+                                <button className="py-3 px-4 rounded-xl bg-emerald-600 text-white font-bold hover:bg-emerald-700 shadow-lg shadow-emerald-200 transition-all">
+                                    Add to Cart
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const App = () => {
+            const [activeTab, setActiveTab] = useState('market');
+            const [userType, setUserType] = useState('customer'); // 'customer' or 'employee'
+            const [selectedProduct, setSelectedProduct] = useState(null);
+
+            // Reset tab when user type changes
+            useEffect(() => {
+                setActiveTab(userType === 'customer' ? 'market' : 'tasks');
+            }, [userType]);
+
+            return (
+                <div className="min-h-screen bg-[#F8FAFC] text-gray-900">
+                    <Sidebar 
+                        activeTab={activeTab} 
+                        setActiveTab={setActiveTab} 
+                        userType={userType} 
+                        setUserType={setUserType}
+                    />
+                    
+                    <div className="md:pl-64 flex flex-col min-h-screen">
+                        <Topbar />
+                        
+                        <main className="flex-1 p-6 mt-16 overflow-y-auto">
+                            <div className="max-w-7xl mx-auto space-y-6">
+                                
+                                {/* Breadcrumbs / Header */}
+                                <div className="flex justify-between items-end">
+                                    <div>
+                                        <h1 className="text-2xl font-bold text-gray-900">
+                                            {activeTab === 'market' && 'Market Overview'}
+                                            {activeTab === 'dashboard' && 'My Clinic Dashboard'}
+                                            {activeTab === 'tasks' && 'Logistics Dashboard'}
+                                            {activeTab === 'commissions' && 'Earnings & Reports'}
+                                            {activeTab === 'ai-vet' && 'AI Vet Assistant'}
+                                        </h1>
+                                        <p className="text-sm text-gray-500 mt-1">
+                                            {new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+                                        </p>
+                                    </div>
+                                    {userType === 'customer' && (
+                                        <div className="flex gap-2">
+                                            <div className="bg-white px-4 py-2 rounded-lg border border-gray-200 shadow-sm">
+                                                <p className="text-xs text-gray-500 uppercase font-bold">Credit Limit</p>
+                                                <p className="font-bold text-emerald-600">₹50,000</p>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+
+                                {/* Content Rendering */}
+                                {userType === 'customer' && activeTab === 'market' && (
+                                    <div className="space-y-6 animate-fade-in">
+                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                            <StatCard title="Total Orders" value="12" subtext="Last 30 days" icon={ShoppingBag} trend="+2" />
+                                            <StatCard title="Samples Requested" value="3" subtext="Processing" icon={Pill} trend="+1" />
+                                            <StatCard title="Total Spend" value="₹24,000" subtext="FY 2024-25" icon={TrendingUp} />
+                                        </div>
+                                        <MarketTable onProductClick={setSelectedProduct} />
+                                    </div>
+                                )}
+
+                                {userType === 'customer' && activeTab === 'ai-vet' && (
+                                    <div className="glass-panel rounded-2xl p-8 text-center h-96 flex flex-col items-center justify-center">
+                                        <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center text-emerald-600 mb-4">
+                                            <Bot size={32} />
+                                        </div>
+                                        <h2 className="text-xl font-bold text-gray-800">Ekana AI Assistant</h2>
+                                        <p className="text-gray-500 max-w-md mt-2 mb-6">Describe the animal's symptoms to receive product recommendations and dosage advice.</p>
+                                        <div className="w-full max-w-xl relative">
+                                            <input type="text" placeholder="e.g. Cow has fever and low appetite..." className="w-full p-4 pr-12 rounded-xl border border-gray-300 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none transition-all" />
+                                            <button className="absolute right-2 top-2 p-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors">
+                                                <ChevronRight size={20} />
+                                            </button>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {userType === 'employee' && (
+                                    <EmployeeDashboard />
+                                )}
+
+                                {(activeTab !== 'market' && activeTab !== 'tasks' && activeTab !== 'ai-vet') && (
+                                    <div className="flex flex-col items-center justify-center h-64 text-gray-400">
+                                        <div className="mb-4 p-4 bg-gray-100 rounded-full">
+                                            <Settings size={32} />
+                                        </div>
+                                        <p>Module Under Construction</p>
+                                    </div>
+                                )}
+
+                            </div>
+                        </main>
+                    </div>
+
+                    <Modal product={selectedProduct} onClose={() => setSelectedProduct(null)} />
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+    <style>
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes scaleIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        .animate-fade-in { animation: fadeIn 0.4s ease-out forwards; }
+        .animate-scale-in { animation: scaleIn 0.3s ease-out forwards; }
+    </style>
+</body>
+</html>
